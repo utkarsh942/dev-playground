@@ -1,15 +1,12 @@
 ---
 name: Bug Bounty Issue Template
-about: This template is designed to streamline reporting issues during the Bug Bounty
-  event at Devlup Labs. Please provide detailed information to help us resolve issues
-  efficiently and enhance our projects.
-title: ''
+about: 'This template is designed to streamline reporting issues during the Bug Bounty
+  event at Devlup Labs. '
+title: Descriptive issue title
 labels: bugbounty
 assignees: ''
 
 ---
-
-# Bug Bounty Issue Template
 
 #### Description
 Provide a clear and concise description of the issue you're reporting. What is the problem, and why is it significant?
