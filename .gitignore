@@ -5,5 +5,4 @@ yarn-error.log
 .DS_Store
 dist/
 build/
-coverage/
 *.log
