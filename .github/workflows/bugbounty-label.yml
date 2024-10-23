@@ -23,7 +23,7 @@ jobs:
           });
           if (issue.data.labels.some(label => label.name === 'bugbounty')) {
             await github.rest.issues.addLabels({
-              owner: 'DevlUp-Labs',
+              owner: 'devlup-labs',
               repo: 'dev-playground',
               issue_number: context.payload.pull_request.number,
               labels: ['bugbounty'],
