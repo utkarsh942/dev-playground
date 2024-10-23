@@ -48,7 +48,7 @@ jobs:
           });
           
           // Check if the issue has the 'bugbounty' label
-          if (!issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
             await github.rest.issues.addLabels({
               owner: 'devlup-labs',
               repo: 'dev-playground',
