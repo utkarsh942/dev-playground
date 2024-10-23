@@ -17,7 +17,7 @@ jobs:
           const issueNumber = context.payload.pull_request.body.match(/#(\d+)/);
           if (!issueNumber) return;
           const issue = await github.rest.issues.get({
-            owner: 'DevlUp-Labs',
+            owner: 'devlup-labs',
             repo: 'dev-playground',
             issue_number: issueNumber[1],
           });
@@ -40,7 +40,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           await github.rest.issues.addLabels({
-            owner: 'DevlUp-Labs',
+            owner: 'devlup-labs',
             repo: 'dev-playground',
             issue_number: context.payload.pull_request.number,
             labels: ['bugbountyverified'],
