@@ -1,11 +1,12 @@
-name: Prevent Manual 'bugbounty' and 'bugbountyverified' Labels
+name: Prevent Manual 'bugbounty' and Handle Bug Bounty Verification
 
 on:
   pull_request:
-    types: [labeled, unlabeled, opened, synchronize]
+    types: [labeled, unlabeled, opened, synchronize, closed]
 
 jobs:
   remove_invalid_labels:
+    if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
     steps:
     - name: Remove 'bugbounty' and 'bugbountyverified' if manually added
@@ -25,4 +26,34 @@ jobs:
               issue_number: context.payload.pull_request.number,
               name: labelsToRemove[0].name,
             });
+          }
+
+  add_bugbountyverified_on_merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check issue and add 'bugbountyverified' on merge if no 'bugbounty' label on issue
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const issueNumber = context.payload.pull_request.body.match(/#(\d+)/);
+          if (!issueNumber) return;  // No issue referenced in the PR body
+          
+          const issue = await github.rest.issues.get({
+            owner: 'DevlUp-Labs',
+            repo: 'dev-playground',
+            issue_number: issueNumber[1],
+          });
+          
+          // Check if the issue has the 'bugbounty' label
+          if (!issue.data.labels.some(label => label.name === 'bugbounty')) {
+            await github.rest.issues.addLabels({
+              owner: 'DevlUp-Labs',
+              repo: 'dev-playground',
+              issue_number: context.payload.pull_request.number,
+              labels: ['bugbountyverified'],
+            });
+          } else {
+            console.log('Issue has "bugbounty" label, skipping "bugbountyverified" addition.');
           }
