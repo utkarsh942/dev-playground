@@ -4,7 +4,7 @@ const jobs = {}
 app.post("/submit", (req, res) =>  {
     const jobId = `job:${Date.now()}`
     jobs[jobId] = 0;
-    // updateJob(jobId,0); 
+    updateJob(jobId,0); 
     res.end("\n\n" + jobId + "\n\n");
 })
 
