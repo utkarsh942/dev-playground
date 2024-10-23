@@ -41,7 +41,7 @@ jobs:
           if (!issueNumber) return;  // No issue referenced in the PR body
           
           const issue = await github.rest.issues.get({
-            owner: 'DevlUp-Labs',
+            owner: 'devlup-labs',
             repo: 'dev-playground',
             issue_number: issueNumber[1],
           });
@@ -49,7 +49,7 @@ jobs:
           // Check if the issue has the 'bugbounty' label
           if (!issue.data.labels.some(label => label.name === 'bugbounty')) {
             await github.rest.issues.addLabels({
-              owner: 'DevlUp-Labs',
+              owner: 'devlup-labs',
               repo: 'dev-playground',
               issue_number: context.payload.pull_request.number,
               labels: ['bugbountyverified'],
