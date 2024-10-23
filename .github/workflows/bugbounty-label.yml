@@ -21,7 +21,7 @@ jobs:
             repo: 'dev-playground',
             issue_number: issueNumber[1],
           });
-          if (issue.data.labels.some(label => label.name === 'bugbounty')) {
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
             await github.rest.issues.addLabels({
               owner: 'devlup-labs',
               repo: 'dev-playground',
@@ -46,7 +46,7 @@ jobs:
             repo: 'dev-playground',
             issue_number: issueNumber[1],
           });
-          if (issue.data.labels.some(label => label.name === 'bugbounty')) {
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
             await github.rest.issues.addLabels({
               owner: 'devlup-labs',
               repo: 'dev-playground',
