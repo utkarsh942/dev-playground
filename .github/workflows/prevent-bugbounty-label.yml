@@ -1,0 +1,28 @@
+name: Prevent Manual 'bugbounty' and 'bugbountyverified' Labels
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, opened, synchronize]
+
+jobs:
+  remove_invalid_labels:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Remove 'bugbounty' and 'bugbountyverified' if manually added
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const restrictedLabels = ['bugbounty', 'bugbountyverified'];
+          const labelsToRemove = context.payload.pull_request.labels
+            .filter(label => restrictedLabels.includes(label.name));
+
+          if (labelsToRemove.length > 0) {
+            console.log(`Removing restricted labels: ${labelsToRemove.map(l => l.name).join(', ')}`);
+            await github.rest.issues.removeLabel({
+              owner: 'DevlUp-Labs',
+              repo: 'dev-playground',
+              issue_number: context.payload.pull_request.number,
+              name: labelsToRemove[0].name,
+            });
+          }
