@@ -1,0 +1,60 @@
+name: Prevent Manual 'bugbounty' and Handle Bug Bounty Verification
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, opened, synchronize, closed]
+
+jobs:
+  remove_invalid_labels:
+    if: github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    steps:
+    - name: Remove 'bugbounty' and 'bugbountyverified' if manually added
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const restrictedLabels = ['bugbounty', 'bugbountyverified'];
+          const labelsToRemove = context.payload.pull_request.labels
+            .filter(label => restrictedLabels.map(l => l.toLowerCase()).includes(label.name.toLowerCase()));
+
+          if (labelsToRemove.length > 0) {
+            await Promise.all(labelsToRemove.map(label =>
+              github.rest.issues.removeLabel({
+                owner: 'devlup-labs',
+                repo: 'dev-playground',
+                issue_number: context.payload.pull_request.number,
+                name: label.name,
+              })
+            ));
+          }
+
+  add_bugbountyverified_on_merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check issue and add 'bugbountyverified' on merge if no 'bugbounty' label on issue
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const issueNumber = context.payload.pull_request.body.match(/#(\d+)/);
+          if (!issueNumber) return;  // No issue referenced in the PR body
+          
+          const issue = await github.rest.issues.get({
+            owner: 'devlup-labs',
+            repo: 'dev-playground',
+            issue_number: issueNumber[1],
+          });
+          
+          // Check if the issue has the 'bugbounty' label
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
+            await github.rest.issues.addLabels({
+              owner: 'devlup-labs',
+              repo: 'dev-playground',
+              issue_number: context.payload.pull_request.number,
+              labels: ['bugbountyverified'],
+            });
+          } else {
+            console.log('Issue has "bugbounty" label, skipping "bugbountyverified" addition.');
+          }

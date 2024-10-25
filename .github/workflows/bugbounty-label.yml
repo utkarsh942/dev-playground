@@ -1,0 +1,56 @@
+name: Bug Bounty PR Labeling
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+
+jobs:
+  check_issue_and_add_bugbounty:
+    if: github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check for 'bugbounty' label on related issue
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const issueNumber = context.payload.pull_request.body.match(/#(\d+)/);
+          if (!issueNumber) return;
+          const issue = await github.rest.issues.get({
+            owner: 'devlup-labs',
+            repo: 'dev-playground',
+            issue_number: issueNumber[1],
+          });
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
+            await github.rest.issues.addLabels({
+              owner: 'devlup-labs',
+              repo: 'dev-playground',
+              issue_number: context.payload.pull_request.number,
+              labels: ['bugbounty'],
+            });
+          }
+
+  add_bugbountyverified_on_merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check if issue has 'bugbounty' label before adding 'bugbountyverified'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const issueNumber = context.payload.pull_request.body.match(/#(\d+)/);
+          if (!issueNumber) return;
+          const issue = await github.rest.issues.get({
+            owner: 'devlup-labs',
+            repo: 'dev-playground',
+            issue_number: issueNumber[1],
+          });
+          if (issue.data.labels.some(label => label.name.toLowerCase() === 'bugbounty')) {
+            await github.rest.issues.addLabels({
+              owner: 'devlup-labs',
+              repo: 'dev-playground',
+              issue_number: context.payload.pull_request.number,
+              labels: ['bugbountyverified'],
+            });
+          }
