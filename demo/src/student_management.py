@@ -15,7 +15,7 @@ class StudentManagementSystem:
         It compares strings instead of integers for roll numbers
         """
         # Bug: Incorrect string comparison instead of integer comparison
-        if any(str(student.roll_no) == str(roll_no) for student in self.students):
+        if any(int(student.roll_no) == int(roll_no) for student in self.students):
             return False, "Roll number already exists"
         
         new_student = Student(roll_no, name, age, grade)
@@ -44,6 +44,7 @@ if __name__ == "__main__":
     
     # These additions will work even though they should be duplicates
     sms.add_student("001", "John Doe", 18, "A")
-    sms.add_student(1, "Jane Smith", 19, "B")    # Should be rejected but won't be
+    sms.add_student(1, "Jane Smith", 19, "B")
+
     
     print(sms.display_all_students())
